@@ -10,6 +10,9 @@ For example, if you measured a resistance of 13.9K on the coolant high side resi
 You must add the `.0` at the end as the value must be reported as a float.
 
 
-Build this and then upload it to the Teensy using the onboard micro-USB port.
+
+Build this by pressing the checkmark in the bottom left of the VS Code window, and then upload it to the Teensy using the onboard micro-USB port by pressing the right hand arrow in VS Code.
+
+![](../images/tutorial_images/platformio_buttons_locations.png)
 
 (Better tutorial to follow :) )
