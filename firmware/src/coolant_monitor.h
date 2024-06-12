@@ -1,24 +1,24 @@
 /* 
- * This is the main header file for the RX-8 coolant monitor project.
+ * This is the main header file for the RX-8 Ashtray Gauges project.
  * Original Author: Stephane Gilbert
  * Modified by: Andrew Wilson
  * BSD tree clause licence (SPDX: BSD-3-Clause)
 */
 
 /* 
-There are values in here you will need to change
-WHICH_ARDUINO needs to be changed depending on the arduino you are programming.
-You will also need to mesaure the resistance of resistors R3, R4, R9, R10, R11 and R12 and enter the values below.
+ * There are values in here you will need to change.
+ * You will need to mesaure the resistance of resistors R3, R4, R8, R9, R10 and R11 and enter the values below.
 */
 
-// Type of sensor used for pressure
-#define PRESSURE_SENSOR_2131_15G 0
-#define PRESSURE_SENSOR_2131_100 1
-
 // Set this to zero if you'd prefer not to have the buzzer
-#define USE_BUZZER_ALERT 1
+// #define USE_BUZZER_ALERT 1
 
-// These values you can change to control when the warning triangle is displayed to indicate a fault.
+// Set this to zero if you don't want LEDs in a warning state
+#define ENABLE_WARNING_LEDS 1
+
+#define USE_BAR 0
+
+// These values you can change to control when the warning triangle and warning LED is displayed to indicate a fault.
 // Temperatures:
 // The coolant temperature warning threshold, in Celsius
 #define COOLANT_TEMP_WARNING_CELSIUS 110
@@ -29,13 +29,13 @@ You will also need to mesaure the resistance of resistors R3, R4, R9, R10, R11 a
 #define COOLANT_PSI_WARNING 15
 // The oil pressure warning threshold, in PSI
 #define OIL_PSI_WARNING_LOW 13
-#define OIL_PSI_WARNING_HIGH 75
+#define OIL_PSI_WARNING_HIGH 80
 // Voltage:
 // Display a warning sign when the battery voltage is below or above these values
-#define BATTERY_VOLTAGE_LOW_WARNING 11.7
+#define BATTERY_VOLTAGE_LOW_WARNING 11.5
 #define BATTERY_VOLTAGE_HIGH_WARNING 15.0
 
-// The speed (in Hz) at which the display refreshes the displayed values
+// The speed (in Hz) at which the displays refresh the displayed values
 #define DISPLAY_REFRESH_RATE_HZ 4
 
 // Position of the displayed value relative to the display half. Do not change this.
@@ -49,86 +49,115 @@ You will also need to mesaure the resistance of resistors R3, R4, R9, R10, R11 a
 #define TOP_HALF 1
 #define BOTTOM_HALF 0
 
+/*
+ * Teensy Pin Definitions
+ * Correct as of PCB rev 2.2
+ */
 // Digital pins definitions
+#define TEMPERATURE_UNIT_SELECTOR_INPUT_PIN 2 // C or F Jumper
 #define OIL_THERMISTOR_REFERENCE_SELECT_OUTPUT_PIN 3
 #define COOLANT_THERMISTOR_REFERENCE_SELECT_OUTPUT_PIN 4
-#define TEMPERATURE_UNIT_SELECTOR_INPUT_PIN 2 // C or F Jumper
-#define WARNING_LED_OUTPUT_PIN 7
-#define SDA_PIN 18
-#define SCL_PIN 19
+#define HALL_EFFECT_SENSOR_INPUT_PIN 5
 #define ALERT_BUZZER_OUTPUT_PIN 6
+#define WARNING_LED_OUTPUT_PIN 7
+#define SPARE_2_OUPUT_PIN 8
+#define PRESSURE_UNIT_SELECTOR_INPUT_PIN 10
+#define SCL1_PIN 16
+#define SDA1_PIN 17
+#define SDA0_PIN 18
+#define SCL0_PIN 19
 
-// Analog pin definition
-#define OIL_PSI_ANALOG_INPUT_PIN A6         // Digital out 20
+// Analogue pin definition
 #define OIL_ANALOG_INPUT_PIN A0             // Digital out 14
 #define COOLANT_ANALOG_INPUT_PIN A1         // Digital out 15
-#define VOLTAGE_ANALOG_INPUT_PIN A8         // Digital out 22
+// A2, A3, A4, A5 are SCL & SDA pins
+#define OIL_PSI_ANALOG_INPUT_PIN A6         // Digital out 20
 #define ILLUMINATION_ANALOG_INPUT_PIN A7    // Digital out 21
-//#define REFERENCE_ANALOG_INPUT_PIN A2       // Digital out 20
+#define VOLTAGE_ANALOG_INPUT_PIN A8         // Digital out 22
+#define SPARE_1_INPUT_PIN A9                // Digital out 23
 
 // Digital pins definitions
 // If it's commentend out, it's in use above
-#define UNUSED_PIN_0 0          // RX
-#define UNUSED_PIN_1 1          // TX
-//#define UNUSED_PIN_2 2        // SDA
-//#define UNUSED_PIN_3 3        // SCL
-//#define UNUSED_PIN_4 4        // Analogue A6
+#define UNUSED_PIN_0 0          // RX1
+#define UNUSED_PIN_1 1          // TX1
+//#define UNUSED_PIN_2 2
+//#define UNUSED_PIN_3 3
+//#define UNUSED_PIN_4 4
 //#define UNUSED_PIN_5 5    
-//#define UNUSED_PIN_6 6        // Analogue A7
-#define UNUSED_PIN_7 7      
-//#define UNUSED_PIN_8 8        // Analogue A8
-#define UNUSED_PIN_9 9          // Analogue A9
-//#define UNUSED_PIN_10 10      // Analogue A10
-#define UNUSED_PIN_14 14        // MISO
-#define UNUSED_PIN_15 15        // SCLK
-//#define UNUSED_PIN_16 16      // MOSI
-#define UNUSED_PIN_18 18        // Analogue A0
-//#define UNUSED_PIN_19 19      // Analogue A1
-//#define UNUSED_PIN_20 20      // Analogue A2
-//#define UNUSED_PIN_21 21      // Analogue A3
+//#define UNUSED_PIN_6 6
+//#define UNUSED_PIN_7 7      
+//#define UNUSED_PIN_8 8   
+#define UNUSED_PIN_9 9         
+//#define UNUSED_PIN_10 10  
+#define UNUSED_PIN_11 11        // MOSI
+#define UNUSED_PIN_12 12        // MISO
+//#define UNUSED_PIN_13 13      // LED
+//#define UNUSED_PIN_14 14      // Analogue A0
+//#define UNUSED_PIN_15 15      // Analogue A1
+//#define UNUSED_PIN_16 16      // Analogue A2 / SCL1
+//#define UNUSED_PIN_17 17      // Analogue A3 / SDA1
+//#define UNUSED_PIN_18 18      // Analogue A4 / SDA0
+//#define UNUSED_PIN_19 19      // Analogue A5 / SCL0
+//#define UNUSED_PIN_20 20      // Analogue A6
+//#define UNUSED_PIN_21 21      // Analogue A7
+//#define UNUSED_PIN_22 22      // Analogue A8
+//#define UNUSED_PIN_23 23      // Analogue A9
+
+// We don't use pins 24-39 as they're not required and dificult to access.
 
 
 
 /* Thermistor value and treshold
  * The Delphi 12160855 or AEM 30-2012 sensor, like all thermistors don't have a linear curve
- * So to have a good precision on the full temperature scale, we use two different resistor value
+ * So to have a good precision on the full temperature scale, we use two different resistor values
  * to calculate the temperature. One for the low end to mid, and one for the high end.
  * Since we mesure engine coolant temperature, the high end reading must be accurate.
  * The reference resistors and the treshold to switch between them are determined by the value below.
- * An hysteresis is used to avoid changing the reference too often.
+ * A hysteresis is used to avoid changing the reference too often.
  */
 // Values for coolant thermistor's resistors (R11 - High, R10 - Low)
 // For the best results, mesure the actual value on your specific board and use high precision %1 resistor or better.
 // Important: Enter the value as float
-#define COOL_THERMISTOR_RESISTOR_REFERENCE_HIGH 15020.0 //13950.0
+#define COOL_THERMISTOR_RESISTOR_REFERENCE_HIGH 15180.0
 // This is the parallel value of both the above reference resistor and a second one
 // Important: Enter the value as float
-#define COOL_THERMISTOR_RESISTOR_REFERENCE_LOW 984.0 //980.0
+#define COOL_THERMISTOR_RESISTOR_REFERENCE_LOW 982.0
+
+// Values for oil thermistor's resistors (R9 - High, R8 - Low)
 // For the best results, mesure the actual value on your specific board and use high precision %1 resistor or better.
 // Important: Enter the value as float
-
-// Values for oil thermistor's resistors (R12 - High, R9 - Low)
-#define OIL_THERMISTOR_RESISTOR_REFERENCE_HIGH 15090.0 //14922.0
+#define OIL_THERMISTOR_RESISTOR_REFERENCE_HIGH 15410.0
 // This is the parallel value of both the above reference resistor and a second one
 // Important: Enter the value as float
-#define OIL_THERMISTOR_RESISTOR_REFERENCE_LOW 981.0 //936.5
+#define OIL_THERMISTOR_RESISTOR_REFERENCE_LOW 977.0
 
-// The treshold values to toggle between high resistor and low resistor
-#define THERMISTOR_RESISTOR_REFERENCE_LOW_TRESHOLD 55
-#define THERMISTOR_RESISTOR_REFERENCE_HIGH_TRESHOLD 50
+// The threshold values to toggle between high resistor and low resistor
+#define THERMISTOR_RESISTOR_REFERENCE_LOW_THRESHOLD 55
+#define THERMISTOR_RESISTOR_REFERENCE_HIGH_THRESHOLD 50
 
-// There is an onboard tension divider that allow to read the supply voltage (12V).
-// The raw voltage is too high for the Arduino, so the voltage is divided with resistors.
+// There is an onboard tension divider that allow the Teensy to read the supply voltage (12V).
+// The raw voltage is too high for the Teensy, so the voltage is divided with resistors.
 // For the best results, mesure the actual values on your specific board and use high precision %1 resistor or better.
 // Important: Enter the value as float
 // These values below allow a voltage range from 0 to 18V
 #define VOLTAGE_DIVIDER_R1 6800.0 // R4
 #define VOLTAGE_DIVIDER_R2 1500.0 // R3
 
-// The following is for analog read.
-// Number of sample to read for each analog acquisition
+// Adjust this in the range 0-255 to change brightness when car lights are turned on
+// Should be greater than 0, otherwise displays are off
+#define MINIMUM_BRIGHTNESS 2
+
+// Type of sensor used for pressure. Do not change this.
+// With the 10K and 20K resistor based voltage divider:
+// AEM-30-2131-15G Max: 4.8V becomes Max: 3.2V
+// AEM-30-2131-100 Max: 4.5V becomes Max: 3.0V
+#define PRESSURE_SENSOR_2131_15G 0
+#define PRESSURE_SENSOR_2131_100 1
+
+// The following is for analogue read.
+// Number of sample to read for each analogue acquisition
 #define ANALOG_SAMPLES_COUNT 5
-// The number of time to wait between analog acquisitions.
+// The number of time to wait between analogue acquisitions.
 #define ANALOG_DELAY_BETWEEN_ACQUISITIONS 5
 // The highest tolerable voltage by the ADC
 #define MAX_ANALOGUE_VOLTAGE 3.3
@@ -138,20 +167,15 @@ You will also need to mesaure the resistance of resistors R3, R4, R9, R10, R11 a
 #define ERANGE 1
 #define EDIVZERO 2
 
-// A debug option that overrides the sensors with hardcoded values for testing
-#define DEBUG_VALUES 0
-#if DEBUG_VALUES
-#define OIL_TEMP_DEBUG 598
-#define OIL_PRESSURE_DEBUG 2.6
-#define COOLANT_TEMP_DEBUG 543
-#define COOLANT_PRESSURE_DEBUG 2.3
-#define SUPPLY_VOLTAGE_DEBUG 2.5
-#endif //DEBUG_VALUES
-
 /* Custom icons definitions.
  * Made with Gimp and converted with image2cpp
  * https://javl.github.io/image2cpp
  * The original file are located in the 'bitmaps' folder
+ * Credit for the following icons to Stephane Gilbert:
+ *  coolant_icon_c, coolant_icon_f, degree_sign, fault_message, psi_sign, 
+ *  rad_pressure_icon, rx8_logo, voltage_icon, voltage_sign, wanring_icon
+ * Credit for the following icons to Andrew Wilson:
+ *  bar_sign, oil_icon_c, oil_icon_f, oil_pressure_icon
  */
 // 'degree_sign', 8x10px
 const unsigned char epd_bitmap_degree_sign [] PROGMEM = {
@@ -213,6 +237,11 @@ const unsigned char epd_bitmap_warning_icon [] PROGMEM = {
 // 'psi_sign', 15x7px
 const unsigned char epd_bitmap_psi_sign [] PROGMEM = {
     0xf3, 0xce, 0x92, 0x04, 0x92, 0x04, 0xf3, 0xc4, 0x80, 0x44, 0x80, 0x44, 0x83, 0xce
+};
+
+// 'bar_sign', 15x7px
+const unsigned char epd_bitmap_bar_sign [] PROGMEM = {
+    0xe3, 0x38, 0x94, 0xa4, 0x94, 0xa4, 0xe7, 0xb8, 0x94, 0xa4, 0x94, 0xa4, 0xe4, 0xa4
 };
 
 // 'rad_pressure_icon', 20x28px
@@ -297,25 +326,27 @@ const unsigned char epd_bitmap_voltage_sign [] PROGMEM = {
 
 // Icons size object
 typedef struct {
-  uint8_t width;       // Icon width
-  uint8_t height;      // Icon height
+    uint8_t width;       // Icon width
+    uint8_t height;      // Icon height
 } IconSize;
 
 // Icon size table
 const IconSize iconSize[] PROGMEM = {
-    {8, 10},    // degree_sign
+    {8, 10},    // Degree sign
     {24, 25},   // Coolant icon Celsius
     {24, 25},   // Coolant icon Fahrenheit
     {24, 25},   // Oil icon Celsius
     {24, 25},   // Oil icon Fahrenheit
     {31, 31},   // Warning Icon
     {15, 7},    // PSI sign
+    {15, 7},    // BAR sign
     {20, 28},   // Radiator pressure icon
     {24, 18},   // Oil pressure icon
     {128, 19},  // RX-8 stylized logo
     {102, 26},  // Fault message
     {12, 28},   // Voltage icon
-    {7, 8}};    // Voltage sign
+    {7, 8}      // Voltage sign
+};    
 
 enum class Icon: uint8_t {
     degree_sign = 0,
@@ -325,6 +356,7 @@ enum class Icon: uint8_t {
     oil_icon_f,
     warning_icon,
     psi_sign,
+    bar_sign,
     radiator_pressure_icon,
     oil_pressure_icon,
     rx8_logo,
@@ -341,6 +373,7 @@ const unsigned char* epd_bitmap_allArray[sizeof(iconSize) / sizeof(IconSize)] = 
     epd_bitmap_oil_icon_f,
     epd_bitmap_warning_icon,
     epd_bitmap_psi_sign,
+    epd_bitmap_bar_sign,
     epd_bitmap_rad_psi3_icon,
     epd_bitmap_oil_psi_icon,
     epd_bitmap_rx8_logo,
