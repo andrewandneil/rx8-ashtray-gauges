@@ -27,7 +27,7 @@ A modified banjo bolt with a 1/8NPT thread cut into the top is used. Add thread 
 #### My Oil Pressure Sensor Location:
 A modified banjo bolt with a 1/8NPT thread cut into the top is used. Add thread sealant to the NPT threads and not to the banjo bolt threads (that's what the crush washers are for). Mounted to the banjo bolt on the feed line to the oil cooler.
 
-![Oil Pressure Sensor Location](images/oil_pressure_location.jpg)
+![Oil Pressure Sensor Location](images/oil_pressure_location.JPG)
 
 #### My Coolant Temperature Sensor Location:
 A Racing Beat RX-8 Water Temp Sensor Hose Adapter is used with a 3/8 to 1/8 step down adapter to fit the 1/8NPT thread of the sensor. Add thread sealant to the threads on both the adapter and sensor. Fitted to the heater core hose located on the passanger side.
