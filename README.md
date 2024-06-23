@@ -2,9 +2,9 @@
 
 As someone who likes knowing the vitals of my ever-so-fragile rotary engine, I wanted a way to monitor Oil Temperature, Oil Pressure, Coolant Temperature and Electrical System Voltage without needing big aftermarket gauges. I stumbled across Stephane Gilbert's work, where he built a small gauge system for coolant temperature, pressure and battery voltage, but it wasn't a perfect fit for me. I decided to take his basis, and modify it to my need. After several months of toiling around, I have finally produced this:
 
-![RX8 Ashtray Gauges Installed](images/ashtray_installed.png)
+![RX8 Ashtray Gauges Installed](images/ashtray_installed.jpeg)
 
-This project doesn't use the OBDII port, instead relying on deidcated sensors. For both oil and coolant temperature AEM-30-2012 sensors were used and for oil pressure an AEM-2131-100 was used. Electrical system voltage is calculated using the supplied power on board.
+This project doesn't use the OBDII port, instead relying on deidcated sensors. For both oil and coolant temperature AEM-30-2012 sensors were used and for oil pressure a 200 PSI pressure transducer was used. Electrical system voltage is calculated using the supplied power on board.
 
 The design uses two PCBs, one PCB that houses the electronics, and another PCB inside the ashtray cavity to breakout the connectors for screens and sensors.
 
@@ -17,18 +17,20 @@ The design uses two PCBs, one PCB that houses the electronics, and another PCB i
 - Optional buzzer sound when temperature, pressure or voltage is out of user specified limits. [NOT IMPLEMENTED ATM]
 
 ## Sensors
-#### My Oil Temperature Sensor Location:
-A modified banjo bolt with a 1/8NPT thread cut into the top is used. Mounted to the banjo bolt on the front passanger side oil cooler.
+If you're building this yourself, this is where you can go your own route, you may prefer to use the oil filter sandwich plate, in which case disregard anything below. You also shouldnt need a 200 PSI sensor if you're using the sandwich plate, a 100 PSI sensor would be more appropriate (do your own research, this is what I've found searching around). You may also prefer to add your coolant temp sensor to the main radiator hose, in which case of course there are guides out there for that.
 
-![Oil Temp Sensor Location](images/oil_temp_location.png)
+#### My Oil Temperature Sensor Location:
+A modified banjo bolt with a 1/8NPT thread cut into the top is used. Add thread sealant to the NPT threads and not to the banjo bolt threads (that's what the crush washers are for). Mounted to the banjo bolt on the front passanger side oil cooler.
+
+![Oil Temp Sensor Location](images/oil_temp_location.jpeg)
 
 #### My Oil Pressure Sensor Location:
-A modified banjo bolt with a 1/8NPT thread cut into the top is used. Mounted to the banjo bolt on the oil filter.
+A modified banjo bolt with a 1/8NPT thread cut into the top is used. Add thread sealant to the NPT threads and not to the banjo bolt threads (that's what the crush washers are for). Mounted to the banjo bolt on the feed line to the oil cooler.
 
-![Oil Temp Sensor Location](images/oil_pressure_location.png)
+![Oil Pressure Sensor Location](images/oil_pressure_location.jpg)
 
 #### My Coolant Temperature Sensor Location:
-A Racing Beat RX-8 Water Temp Sensor Hose Adapter is used with a 3/8 to 1/8 step down adapter to fit the 1/8NPT thread of the sensor. Fitted to the heater core hose located on the passanger side.
+A Racing Beat RX-8 Water Temp Sensor Hose Adapter is used with a 3/8 to 1/8 step down adapter to fit the 1/8NPT thread of the sensor. Add thread sealant to the threads on both the adapter and sensor. Fitted to the heater core hose located on the passanger side.
 
 ![Coolant Temp Sensor Location](images/cool_temp_location.png)
 
@@ -69,4 +71,5 @@ You'll also need:
 
 ## Useful Links
 A guide for adding the oil temperature and pressure sensors: https://www.rx8club.com/series-i-do-yourself-forum-73/diy-oil-temp-pressure-sender-install-modified-banjo-bolts-235867/
+
 rx8-coolant-monitor by Stephane Gilbert (topolittle): https://github.com/topolittle/rx8-coolant-monitor

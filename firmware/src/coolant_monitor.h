@@ -16,7 +16,7 @@
 // Set this to zero if you don't want LEDs in a warning state
 #define ENABLE_WARNING_LEDS 1
 
-#define USE_BAR 0
+#define DEBUG_VALUES 0
 
 // These values you can change to control when the warning triangle and warning LED is displayed to indicate a fault.
 // Temperatures:
@@ -29,14 +29,14 @@
 #define COOLANT_PSI_WARNING 15
 // The oil pressure warning threshold, in PSI
 #define OIL_PSI_WARNING_LOW 13
-#define OIL_PSI_WARNING_HIGH 80
+#define OIL_PSI_WARNING_HIGH 150
 // Voltage:
 // Display a warning sign when the battery voltage is below or above these values
 #define BATTERY_VOLTAGE_LOW_WARNING 11.5
 #define BATTERY_VOLTAGE_HIGH_WARNING 15.0
 
 // The speed (in Hz) at which the displays refresh the displayed values
-#define DISPLAY_REFRESH_RATE_HZ 4
+#define DISPLAY_REFRESH_RATE_HZ 5 //4
 
 // Position of the displayed value relative to the display half. Do not change this.
 #define TEXT_POS_X 30
@@ -112,47 +112,68 @@
  * So to have a good precision on the full temperature scale, we use two different resistor values
  * to calculate the temperature. One for the low end to mid, and one for the high end.
  * Since we mesure engine coolant temperature, the high end reading must be accurate.
- * The reference resistors and the treshold to switch between them are determined by the value below.
+ * The reference resistors and the threshold to switch between them are determined by the value below.
  * A hysteresis is used to avoid changing the reference too often.
  */
 // Values for coolant thermistor's resistors (R11 - High, R10 - Low)
-// For the best results, mesure the actual value on your specific board and use high precision %1 resistor or better.
+// For the best results, measure the actual value on your specific board and use high precision %1 resistor or better.
+// Should be between 14800.0 - 15200.0
 // Important: Enter the value as float
-#define COOL_THERMISTOR_RESISTOR_REFERENCE_HIGH 15180.0
-// This is the parallel value of both the above reference resistor and a second one
+#define COOL_THERMISTOR_RESISTOR_REFERENCE_HIGH 14960.0
+// This is the PARALLEL VALUE of both the above reference resistor and a second one
+// !!IMPORTANT!! Measure the resistance of R11 and R10 and put the two values into this calulator:
+// https://www.allaboutcircuits.com/tools/parallel-resistance-calculator/
+// Then paste the equivalent resistance below.
+// Should be between 890.0 - 990.0
 // Important: Enter the value as float
-#define COOL_THERMISTOR_RESISTOR_REFERENCE_LOW 982.0
+#define COOL_THERMISTOR_RESISTOR_REFERENCE_LOW 935.59
 
 // Values for oil thermistor's resistors (R9 - High, R8 - Low)
-// For the best results, mesure the actual value on your specific board and use high precision %1 resistor or better.
+// For the best results, measure the actual value on your specific board and use high precision %1 resistor or better.
+// Should be between 14800.0 - 15200.0
 // Important: Enter the value as float
-#define OIL_THERMISTOR_RESISTOR_REFERENCE_HIGH 15410.0
-// This is the parallel value of both the above reference resistor and a second one
+#define OIL_THERMISTOR_RESISTOR_REFERENCE_HIGH 14960.0 //15410.0
+// This is the PARALLEL VALUE of both the above reference resistor and a second one
+// !!IMPORTANT!! Measure the resistance of R9 and R8 and put the two values into this calulator:
+// https://www.allaboutcircuits.com/tools/parallel-resistance-calculator/
+// Then paste the equivalent resistance below.
+// Should be between 890.0 - 990.0
 // Important: Enter the value as float
-#define OIL_THERMISTOR_RESISTOR_REFERENCE_LOW 977.0
+#define OIL_THERMISTOR_RESISTOR_REFERENCE_LOW 935.59
 
 // The threshold values to toggle between high resistor and low resistor
 #define THERMISTOR_RESISTOR_REFERENCE_LOW_THRESHOLD 55
 #define THERMISTOR_RESISTOR_REFERENCE_HIGH_THRESHOLD 50
 
-// There is an onboard tension divider that allow the Teensy to read the supply voltage (12V).
+// There is an onboard tension divider that allow the Teensy to read the supply voltage (~12V).
 // The raw voltage is too high for the Teensy, so the voltage is divided with resistors.
-// For the best results, mesure the actual values on your specific board and use high precision %1 resistor or better.
+// For the best results, measure the actual values on your specific board and use high precision %1 resistor or better.
 // Important: Enter the value as float
 // These values below allow a voltage range from 0 to 18V
 #define VOLTAGE_DIVIDER_R1 6800.0 // R4
 #define VOLTAGE_DIVIDER_R2 1500.0 // R3
 
-// Adjust this in the range 0-255 to change brightness when car lights are turned on
+// Adjust this in the range 0-255 to change screen brightness when car lights are turned on
 // Should be greater than 0, otherwise displays are off
 #define MINIMUM_BRIGHTNESS 2
 
+// Buzzer Configuration
+#define BUZZER_HZ 1500
+
 // Type of sensor used for pressure. Do not change this.
 // With the 10K and 20K resistor based voltage divider:
-// AEM-30-2131-15G Max: 4.8V becomes Max: 3.2V
-// AEM-30-2131-100 Max: 4.5V becomes Max: 3.0V
-#define PRESSURE_SENSOR_2131_15G 0
-#define PRESSURE_SENSOR_2131_100 1
+// AEM-30-2131-15G:
+// Max: 4.8V becomes Max: 3.2V
+// AEM-30-2131-100, AEM-30-2131-150, 200 PSI or 300 PSI:
+// Max: 4.5V becomes Max: 3.0V
+//#define PRESSURE_SENSOR_2131_15G 0
+#define PRESSURE_SENSOR_2131_100 0
+#define PRESSURE_SENSOR_2131_150 1
+#define PRESSURE_SENSOR_200_PSI  2
+#define PRESSURE_SENSOR_300_PSI  3
+
+// According to this datasheet, PSI = (3.7529*(Voltage)) - 1.8765
+// https://www.aemelectronics.com/files/instructions/30-2131-15G%20Sensor%20Data.pdf
 
 // The following is for analogue read.
 // Number of sample to read for each analogue acquisition
@@ -166,6 +187,7 @@
 #define ENOERR 0
 #define ERANGE 1
 #define EDIVZERO 2
+#define EINVALID 3
 
 /* Custom icons definitions.
  * Made with Gimp and converted with image2cpp

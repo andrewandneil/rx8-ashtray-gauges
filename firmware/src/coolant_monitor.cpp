@@ -265,37 +265,62 @@ int getFluidTempCelsius(float &TC, uint8_t pinRead)
 // pinRead: The pin we are reading our analogue voltage from
 // Return: ENOERR if the conversion succeeded and the value has been placed in the psi
 //         parameter, otherwise the error code
-int getFluidPsi(float &psi, bool sensorType, uint8_t pinRead)
+int getFluidPsi(float &psi, int sensorType, uint8_t pinRead)
 {
     float volts_32bit, volts;
+    #if DEBUG_VALUES
+    volts_32bit = 1.5;
+    #else
     volts_32bit = readVoltage(pinRead);
+    #endif
 
     // Because the Teensy 4.0's ADC has a max of 3.3V we need to convert the 0-3.3V range back to 0-5V
     volts = (volts_32bit / MAX_ANALOGUE_VOLTAGE) * 5;
 
-    if (sensorType) {
-        // AEM30-2131-100 or AEM30-2130-100
-        // Ensure the voltage is between the sensor range, otherwise return an error
-        if (volts < 0.5 || volts > 4.5) {
-            return ERANGE;
-        }
+    // Ensure the voltage is between the sensor range, otherwise return an error
+    // Our range is 0.5 to 4.5, however, most sensors can run a little bit out of their rating
+    // so we allow a slightly lower and higher min and max voltage here.
+    if (volts < 0.4 || volts > 4.6) {
+        return ERANGE;
+    }
 
-        // Convert voltage to PSI
-        // According to this datasheet, PSI = (25*(Voltage)) - 12.5
-        // https://documents.aemelectronics.com/techlibrary_30-2131-100_sensor_data.pdf
-        // https://documents.aemelectronics.com/techlibrary_30-2130-100_sensor_data.pdf
-        psi = 25 * volts - 12.5;
-    } else {
-        // AEM30-2131-15G
-        // Ensure the voltage is between the sensor range, otherwise return an error
-        if (volts < 0.2 || volts > 4.8) {
-            return ERANGE;
-        }
+    switch (sensorType) {
+        case 0:
+            // AEM30-2131-100 or AEM30-2130-100
+            // 100 PSI Sensor
+            
+            // Convert voltage to PSI
+            // According to this datasheet, PSI = (25*(Voltage)) - 12.5
+            // https://documents.aemelectronics.com/techlibrary_30-2131-100_sensor_data.pdf
+            // https://documents.aemelectronics.com/techlibrary_30-2130-100_sensor_data.pdf
+            psi = 25 * volts - 12.5;
+            break;
+        case 1:
+            // AEM30-2131-150
+            // 150 PSI Sensor
 
-        // Convert voltage to PSI
-        // According to this datasheet, PSI = (3.7529*(Voltage)) - 1.8765
-        // https://www.aemelectronics.com/files/instructions/30-2131-15G%20Sensor%20Data.pdf
-        psi = 3.7529 * volts - 1.8765;
+            // Convert voltage to PSI
+            // According to this datasheet, PSI = (37.5*(Voltage)) - 18.75
+            // https://documents.aemelectronics.com/techlibrary_30-2131-150_sensor_data.pdf
+            psi = 37.5 * volts - 18.75;
+            break;
+        case 2:
+            // 200 PSI Sensor
+
+            // Convert voltage to PSI
+            // Untested, but should be correct for linear voltage pressure sensors
+            psi = 50 * volts - 25;
+            break;
+        case 3:
+            // 300 PSI Sensor
+
+            // Convert voltage to PSI
+            // Untested, but should be correct for linear voltage pressure sensors
+            psi = 75 * volts - 37.5;
+            break;
+        default:
+            // sensorType is invalid so return an error
+            return EINVALID;
     }
 
     if (psi < 0)
@@ -312,7 +337,11 @@ int getFluidPsi(float &psi, bool sensorType, uint8_t pinRead)
 int getSupplyVoltage(float &voltage)
 {
     float volts, supply_voltage;
+    #if DEBUG_VALUES
+    volts = 2.3;
+    #else
     volts = readVoltage(VOLTAGE_ANALOG_INPUT_PIN);
+    #endif
 
     // Convert pin voltage to actual voltage based on the onboard tension divider
     supply_voltage = volts / (VOLTAGE_DIVIDER_R2 / (VOLTAGE_DIVIDER_R1 + VOLTAGE_DIVIDER_R2));
@@ -377,6 +406,7 @@ void toggleDisplays(bool lidStatus)
         display_1.ssd1306_command(SSD1306_DISPLAYOFF);
         display_2.ssd1306_command(SSD1306_DISPLAYOFF);
     } else {
+        forceDisplayRefresh();
         display_1.ssd1306_command(SSD1306_DISPLAYON);
         display_2.ssd1306_command(SSD1306_DISPLAYON);
     }
@@ -416,11 +446,13 @@ void updateOilTemp(Adafruit_SSD1306 &display, float temperature)
     if (!temperatureUnitIsFahrenheit) {
         // Jumper not present, Display in Celsius
         drawIcon(display, Icon::oil_icon_c, 0, 5);
-        display.print(round(temperature), 0);
+        //display.print(round(temperature), 0);
+        display.print(temperature, 0);
     } else {
         // Jumper present. Convert to Fahrenheit
         drawIcon(display, Icon::oil_icon_f, 0, 5);
-        display.print(round(convertToFahrenheit(temperature)), 0);
+        //display.print(round(convertToFahrenheit(temperature)), 0);
+        display.print(convertToFahrenheit(temperature), 0);
     }
 
     // Print the degree sign after the numeric value
@@ -436,7 +468,7 @@ void updateOilTemp(Adafruit_SSD1306 &display, float temperature)
 // If the Bar selector jumper has been present during boot time, display the
 // pressure in bar, display in PSI otherwise.
 // display: An instance of the Adafruit_SSD1306 class representing the display
-//          on wich the value will be displayed
+//          on which the value will be displayed
 // psi: The pressure to display, in PSI
 // On display's second half
 void updateOilPsi(Adafruit_SSD1306 &display, float psi)
@@ -451,7 +483,7 @@ void updateOilPsi(Adafruit_SSD1306 &display, float psi)
         // Print the bar value
         // Move slightly the displayed value to the left if we are in warning state to give room for the warning sign
         if (psi <= OIL_PSI_WARNING_LOW || psi >= OIL_PSI_WARNING_HIGH) {
-            display.setCursor(TEXT_POS_X - 6, TEXT_POS_Y + DISPLAY_HALF_TWO + 24);
+            display.setCursor(TEXT_POS_X - 4, TEXT_POS_Y + DISPLAY_HALF_TWO + 24);
             display.print(convertToBar(psi), 2);
         } else {
             display.setCursor(TEXT_POS_X, TEXT_POS_Y + DISPLAY_HALF_TWO + 24);
@@ -462,16 +494,26 @@ void updateOilPsi(Adafruit_SSD1306 &display, float psi)
     } else {
         // Print the PSI value
         // Move slightly the displayed value to the left if we are in warning state to give room for the warning sign
-        if (psi <= OIL_PSI_WARNING_LOW || psi >= OIL_PSI_WARNING_HIGH) {
-            display.setCursor(TEXT_POS_X - 6, TEXT_POS_Y + DISPLAY_HALF_TWO + 24);
-            display.print(psi, 1);
+        if (psi <= OIL_PSI_WARNING_LOW || psi >= OIL_PSI_WARNING_HIGH) {  
             if (psi < 10) {
+                display.setCursor(TEXT_POS_X, TEXT_POS_Y + DISPLAY_HALF_TWO + 24);
+                display.print(psi, 1);
                 // Print the PSI sign
                 drawIcon(display, Icon::psi_sign, display.getCursorX() + 1, TEXT_POS_Y + DISPLAY_HALF_TWO);
+            } else if (psi >= 100) {
+                display.setCursor(TEXT_POS_X - 4, TEXT_POS_Y + DISPLAY_HALF_TWO + 24);
+                display.print(psi, 0);
+            } else {
+                display.setCursor(TEXT_POS_X - 4, TEXT_POS_Y + DISPLAY_HALF_TWO + 24);
+                display.print(psi, 1);
             }
         } else {
             display.setCursor(TEXT_POS_X, TEXT_POS_Y + DISPLAY_HALF_TWO + 24);
-            display.print(psi, 1);
+            if (psi >= 100) {
+                display.print(psi, 0);
+            } else {
+                display.print(psi, 1);
+            }
             // Print the PSI sign
             drawIcon(display, Icon::psi_sign, display.getCursorX() + 1, TEXT_POS_Y + DISPLAY_HALF_TWO);
         }
@@ -500,11 +542,13 @@ void updateCoolantTemp(Adafruit_SSD1306 &display, float temperature)
     if (!temperatureUnitIsFahrenheit) {
         // Jumper not present, Display in Celsius
         drawIcon(display, Icon::coolant_icon_c, 0, 5);
-        display.print(round(temperature), 0);
+        //display.print(round(temperature), 0);
+        display.print(temperature, 0);
     } else {
         // Jumper present. Convert to Fahrenheit
         drawIcon(display, Icon::coolant_icon_f, 0, 5);
-        display.print(round(convertToFahrenheit(temperature)), 0);
+        //display.print(round(convertToFahrenheit(temperature)), 0);
+        display.print(convertToFahrenheit(temperature), 0);
     }
 
     // Print the degree sign after the numeric value
@@ -683,20 +727,17 @@ void setup()
     setThermistorHighReferenceOil(true);
     setThermistorHighReferenceCoolant(true);
     
-    // Read the onboard jumper.
+    // Read the onboard jumper (J2).
     // Jupmer absent = Celsius
     // Jupmer present = Fahrenheit
     temperatureUnitIsFahrenheit = !digitalRead(TEMPERATURE_UNIT_SELECTOR_INPUT_PIN);
 
-    // Read the onboard jumper.
+    // Read the onboard jumper (J5).
     // Jupmer absent = PSI
     // Jupmer present = Bar
     pressureUnitIsBar = !digitalRead(PRESSURE_UNIT_SELECTOR_INPUT_PIN);
 
-    // Pending a redesign of the PCB to add a second jumper, value is hardcoded at compile time.
-    #if (USE_BAR)
-    pressureUnitIsBar = true;
-    #endif //USE_BAR
+    //pressureUnitIsBar = true;
 
     displayIntro();
 }
@@ -721,8 +762,8 @@ void loop()
     // Get oil pressure and temp and display
     // Also handle any faults that we've caught and display the appropriate message
     // in the appropriate place
-    err2 = getFluidPsi(oil_psi, PRESSURE_SENSOR_2131_100, OIL_PSI_ANALOG_INPUT_PIN);
     err = getFluidTempCelsius(oil_temp, OIL_ANALOG_INPUT_PIN);
+    err2 = getFluidPsi(oil_psi, PRESSURE_SENSOR_200_PSI, OIL_PSI_ANALOG_INPUT_PIN);
     // We still want to process data when the lid is closed, but we don't want to display this on the screen.
     if (lidClosed) {
         if (err != ENOERR || err2 != ENOERR) {
@@ -811,7 +852,7 @@ void loop()
     }
     
     // Now we check if the lid is closed, handling it appropriately.
-    processLidStatus();
+    //processLidStatus();
     // Now we check if the car has switched on/off lights, and handle state changes appropriately.
     processDayLight();
 
